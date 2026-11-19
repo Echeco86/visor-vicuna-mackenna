@@ -532,8 +532,7 @@
     var F = $("#ficha");
     if (sel < 0) return;
     var i = sel, z = zonaDe(i), url = urlDe(i), v = z && z.zona ? volumen(i) : null;
-    var h = '<button class="btn-imp" data-acc="imprimir" title="Imprimir la ficha de esta parcela"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Imprimir ficha</button>' +
-      cabHTML(i) + parteAvisos(i) + resumenHTML(i, true);
+    var h = cabHTML(i) + parteAvisos(i) + resumenHTML(i, true);
     /* acciones */
     h += '<div class="acciones">' + (v ? '<button class="btn' + (ver3d ? " on" : "") + '" data-acc="3d">' + (ver3d ? "Salir de 3D" : "Ver en 3D") + "</button>" : "") +
       '<button class="btn" data-acc="copiar">Copiar enlace</button><span class="nota" id="msg-copia"></span></div>';
@@ -588,6 +587,7 @@
     if (a === "ejemplo") { var r = idxNom.get(C.ejemplo); if (r && r.length) seleccionar(r[0]); }
     if (a === "imprimir") imprimir(sel);
   });
+  $("#btn-imp").addEventListener("click", function () { if (sel >= 0) imprimir(sel); });
   function copiar(t) {
     var ok = function () { $("#msg-copia").textContent = "Enlace copiado"; setTimeout(function () { var m = $("#msg-copia"); if (m) m.textContent = ""; }, 2500); };
     var viejo = function () {
@@ -703,6 +703,7 @@
     sel = i; supCalc = col.sup[i] || 0;
     var LD = ladosDe(i); esqAuto = !!(LD && LD.ok); esq = !!(LD && LD.esquina);
     renderFicha();
+    $("#btn-imp").hidden = false;
     $("#resultados").innerHTML = o.mantenerLista ? $("#resultados").innerHTML : "";
     activarTab("parcela");
     if (map.getSource("sel")) map.getSource("sel").setData({ type: "Feature", properties: {}, geometry: { type: "MultiPolygon", coordinates: geo[i] } });
