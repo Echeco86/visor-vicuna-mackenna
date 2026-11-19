@@ -129,14 +129,14 @@
       if (ind && ind.porSup) cual.push("de " + nf(supCalc || col.sup[i] || 0, 0) + " m²");
       if (ind && ind.porEsq) cual.push(esq ? "en esquina" : "no en esquina");
       var pie = cual.length ? "<small>Para parcela " + cual.join(", ") + "</small>" : "";
-      filas.push(["FOS <small>Qué parte del terreno se puede cubrir</small>", (ind && ind.fos != null ? nf(ind.fos, 2) : "—") + (ind && ind.confirmar ? conf() : "") + pie]);
-      filas.push(["FOT <small>Cuántas veces el terreno se puede construir, sumando plantas</small>", (ind && ind.fot != null ? nf(ind.fot, dec(ind.fot)) : "—") + (ind && ind.confirmar ? conf() : "") + pie]);
+      filas.push(["F.O.S. <small>Factor de Ocupación del Suelo: fracción de la parcela que puede ocupar la edificación, vista en planta</small>", (ind && ind.fos != null ? nf(ind.fos, 2) : "—") + (ind && ind.confirmar ? conf() : "") + pie]);
+      filas.push(["F.O.T. <small>Factor de Ocupación Total: superficie cubierta total, sumando todas las plantas, en relación con la superficie de la parcela</small>", (ind && ind.fot != null ? nf(ind.fot, dec(ind.fot)) : "—") + (ind && ind.confirmar ? conf() : "") + pie]);
     }
     if (z.altura) filas.push(["Altura máxima", esc(z.altura)]);
     var largo = function (t) { return t && num(t) == null; };
     if (soloCuerpo && (z.sup_min || z.frente_min)) {
-      if (z.sup_min) filas.push(["Parcela mínima para dividir", nf(z.sup_min) + " m²" + (z.frente_min ? " y " + nf(z.frente_min, z.frente_min % 1 ? 1 : 0) + " m de frente" : "") +
-        (largo(z.sup_min_txt) || largo(z.frente_min_txt) ? "<small>Hay casos especiales: ver el texto de la ordenanza</small>" : "")]);
+      if (z.sup_min) filas.push(["Parcela mínima en caso de subdivisión", nf(z.sup_min) + " m²" + (z.frente_min ? " y " + nf(z.frente_min, z.frente_min % 1 ? 1 : 0) + " m de frente" : "") +
+        (largo(z.sup_min_txt) || largo(z.frente_min_txt) ? "<small>Hay casos especiales: ver el texto de la ordenanza.</small>" : "")]);
     } else {
       if (z.sup_min_txt) filas.push(["Superficie mínima de parcela", v(z.sup_min_txt) + (num(z.sup_min_txt) != null ? " m²" : "")]);
       if (z.frente_min_txt) filas.push(["Frente mínimo de parcela", v(z.frente_min_txt) + (num(z.frente_min_txt) != null ? " m" : "")]);
@@ -151,10 +151,10 @@
     if (filas.length) h += '<table class="ind">' + filas.map(function (r) {
       return "<tr><th>" + r[0].replace("<small>", "<small style='display:block;color:#74808d'>") + "</th><td>" + r[1] + "</td></tr>";
     }).join("") + "</table>";
-    else h += '<p class="nota">La ordenanza no fija indicadores para esta zona.</p>';
+    else h += '<p class="nota">El Código no fija indicadores urbanísticos para esta zona.</p>';
     if (z.extra) h += '<p class="nota">' + esc(z.extra) + "</p>";
-    if (!soloCuerpo && (z.fos_txt || z.fot_txt || z.altura_txt)) h += '<details class="txt"><summary>Texto de la ordenanza (FOS, FOT y alturas)</summary>' +
-      (z.fos_txt ? "<h4>FOS</h4><p>" + v(z.fos_txt) + "</p>" : "") + (z.fot_txt ? "<h4>FOT</h4><p>" + v(z.fot_txt) + "</p>" : "") +
+    if (!soloCuerpo && (z.fos_txt || z.fot_txt || z.altura_txt)) h += '<details class="txt"><summary>Texto de la ordenanza (F.O.S., F.O.T. y alturas)</summary>' +
+      (z.fos_txt ? "<h4>F.O.S.</h4><p>" + v(z.fos_txt) + "</p>" : "") + (z.fot_txt ? "<h4>F.O.T.</h4><p>" + v(z.fot_txt) + "</p>" : "") +
       (z.altura_txt ? "<h4>Alturas</h4><p>" + v(z.altura_txt) + "</p>" : "") + "</details>";
     if (z.art && !soloCuerpo) h += '<p class="nota">' + (/^\d+$/.test(z.art) ? "Art. " + esc(z.art) + " del " : "") + "Código de Urbanización (Ord. 1067/2015).</p>";
     return soloCuerpo ? h : '<div class="bloque"><h3>Indicadores urbanísticos</h3>' + h + "</div>";
@@ -176,28 +176,28 @@
     if (!z || !z.zona) return o;
     var m2 = function (v) { v = Math.round(v * 10) / 10; return nf(v, v % 1 ? 1 : 0) + " m²"; }, cf = ind && ind.confirmar ? conf() : "";
     var pb = ind && ind.fos != null ? S * ind.fos : null, tot = ind && ind.fot != null ? S * ind.fot : null;
-    if (pb != null) o.push(["Superficie que se puede cubrir en planta baja", m2(pb) + cf,
-      m2(S) + " × FOS " + nf(ind.fos, 2) + ". Es lo máximo que puede ocupar la construcción sobre el terreno; el " + nf(100 - ind.fos * 100) + " % restante queda libre."]);
+    if (pb != null) o.push(["Ocupación máxima del suelo (F.O.S.)", m2(pb) + cf,
+      m2(S) + " × F.O.S. " + nf(ind.fos, 2) + ". Es la superficie máxima que puede ocupar la edificación sobre la parcela, medida en proyección horizontal; el " + nf(100 - ind.fos * 100) + " % restante debe quedar libre de edificación."]);
     if (tot != null) {
       var ej = pb != null && tot > pb + 0.05 ? " Por ejemplo, " + m2(pb) + " en planta baja y " + m2(tot - pb) + " en plantas altas."
-        : pb != null ? " Entra completa en la planta baja." : "";
-      o.push(["Superficie total que se puede construir", m2(tot) + cf,
-        m2(S) + " × FOT " + nf(ind.fot, dec(ind.fot)) + ". Es la suma de todas las plantas." + ej + " La altura máxima y los retiros limitan cuántas plantas entran."]);
+        : pb != null ? " Puede resolverse íntegramente en planta baja." : "";
+      o.push(["Superficie cubierta total máxima (F.O.T.)", m2(tot) + cf,
+        m2(S) + " × F.O.T. " + nf(ind.fot, dec(ind.fot)) + ". Es la suma de las superficies cubiertas de todas las plantas." + ej + " La altura máxima y los retiros pueden impedir que se alcance este valor."]);
     }
-    var minimo = z.sup_min ? "al menos " + nf(z.sup_min) + " m²" + (z.frente_min ? " y " + nf(z.frente_min, z.frente_min % 1 ? 1 : 0) + " m de frente" : "") : "";
-    if (/no se admite/i.test(z.fracc)) o.push(["¿Se puede dividir?", "No", "En esta zona no se admite la subdivisión de parcelas."]);
+    var minimo = z.sup_min ? "al menos " + nf(z.sup_min) + " m² de superficie" + (z.frente_min ? " y " + nf(z.frente_min, z.frente_min % 1 ? 1 : 0) + " m de frente" : "") : "";
+    if (/no se admite/i.test(z.fracc)) o.push(["¿Se puede subdividir?", "No", "En esta zona el Código no admite la subdivisión de parcelas."]);
     else if (z.sup_min) {
       var k = Math.floor(S / z.sup_min + 1e-9);
-      o.push(["¿Se puede dividir?", k >= 2 ? "Sí, hasta en " + k + " parcelas" : "No",
-        "Para dividir, cada parcela nueva tiene que tener " + minimo + ". " +
-        (k >= 2 ? "Con " + m2(S) + " salen hasta " + k + ", si el frente también alcanza." : "Con " + m2(S) + " no alcanza para dos.")]);
+      o.push(["¿Se puede subdividir?", k >= 2 ? "Por superficie, sí: hasta " + k + " parcelas" : "No",
+        "Cada parcela resultante debe tener " + minimo + ". " +
+        (k >= 2 ? "Con " + m2(S) + " la superficie admite hasta " + k + " parcelas, siempre que cada una cumpla también el frente mínimo." : "Con " + m2(S) + " la superficie no alcanza para dos parcelas.")]);
     }
     return o;
   }
   function calcHTML(i, S) {
     if (!(S > 0)) return '<p class="nota">Ingresá una superficie mayor que cero.</p>';
     var o = calcFilas(i, S);
-    if (!o.length) return '<p class="nota">Esta parcela no tiene indicadores para calcular.</p>';
+    if (!o.length) return '<p class="nota">La zona de esta parcela no tiene F.O.S. ni F.O.T. para calcular.</p>';
     return '<table class="ind">' + o.map(function (r) { return "<tr><th>" + r[0] + "</th><td>" + r[1] + (r[2] ? "<small>" + r[2] + "</small>" : "") + "</td></tr>"; }).join("") + "</table>";
   }
   function usosTexto(z) {
@@ -409,22 +409,22 @@
     var v = volumen(i), S = supCalc;
     if (!v) return "";
     var E = v.E, o = [];
-    var ORD = { frente: 0, frente2: 1, lateral: 2, fondo: 3 }, DIC = { frente: "al frente", frente2: "sobre la otra calle", lateral: "al costado", fondo: "al fondo" };
-    if (!E.ok) o.push('<li><i style="border:2px dashed #111;background:transparent"></i>No pudimos identificar el frente del terreno con el plano catastral, así que el dibujo no descuenta retiros.</li>');
+    var ORD = { frente: 0, frente2: 1, lateral: 2, fondo: 3 }, DIC = { frente: "de retiro de frente", frente2: "de retiro de frente sobre la segunda calle", lateral: "de retiro lateral", fondo: "de retiro de fondo" };
+    if (!E.ok) o.push('<li><i style="border:2px dashed #111;background:transparent"></i>No se pudo identificar la Línea Municipal (L.M.) de la parcela en el plano catastral, por eso el dibujo no descuenta retiros.</li>');
     else {
       var vistos = {}, partes = [];
       E.apl.slice().sort(function (x, y) { return ORD[x.tipo] - ORD[y.tipo]; }).forEach(function (a) { var k = a.tipo + a.d; if (!vistos[k]) { vistos[k] = 1; partes.push(mt(a.d) + " " + DIC[a.tipo]); } });
-      o.push('<li><i style="border:2px dashed #111;background:transparent"></i>' + (partes.length ? "<b>Línea punteada:</b> hasta dónde se puede construir, dejando " + lista(partes) + "."
-        : "<b>Sin retiros:</b> en esta zona se puede construir hasta el borde del terreno.") + (E.esquina ? " Es un terreno en esquina." : "") + "</li>");
+      o.push('<li><i style="border:2px dashed #111;background:transparent"></i>' + (partes.length ? "<b>Línea punteada:</b> límite del área edificable, descontando " + lista(partes) + "."
+        : "<b>Sin retiros:</b> en esta zona se puede edificar sobre la L.M. y sobre las líneas divisorias de la parcela.") + (E.esquina ? " Es una parcela en esquina." : "") + "</li>");
     }
-    if (v.H != null) o.push('<li><i style="background:' + COL_3D.env + ';opacity:.35"></i><b>Caja celeste:</b> el espacio máximo que se puede ocupar, hasta ' + mt(v.H) + " de altura.</li>");
-    else o.push("<li>La zona no fija una altura máxima en metros, por eso no hay caja celeste.</li>");
-    var txt = "<b>Volumen naranja:</b> un ejemplo de edificio que cumple las reglas: " + v.niveles + (v.niveles === 1 ? " planta" : " plantas") +
+    if (v.H != null) o.push('<li><i style="background:' + COL_3D.env + ';opacity:.35"></i><b>Volumen azul translúcido (envolvente):</b> espacio máximo en el que puede desarrollarse la edificación, hasta la altura máxima de ' + mt(v.H) + ".</li>");
+    else o.push("<li>La zona no fija una altura máxima en metros, por eso no se dibuja la envolvente.</li>");
+    var txt = "<b>Volumen naranja:</b> un ejemplo de edificación que respeta F.O.S., F.O.T., altura máxima y retiros: " + v.niveles + (v.niveles === 1 ? " planta" : " plantas") +
       (S > 0 ? ", " + m2(S * v.planta) + " por planta y " + m2(S * v.planta * v.pisos) + " en total" : "") + ".";
-    if (v.planta < v.fos - 1e-6) txt += " Los retiros dejan menos lugar que el que permite el FOS.";
-    if (v.limitado) txt += " Con la altura máxima no se llega a usar todo lo que permite el FOT" + (S > 0 ? " (" + m2(S * v.fot) + ")" : "") + ".";
+    if (v.planta < v.fos - 1e-6) txt += " Los retiros reducen la ocupación por debajo de la que admite el F.O.S.";
+    if (v.limitado) txt += " La altura máxima impide alcanzar la superficie que admite el F.O.T." + (S > 0 ? " (" + m2(S * v.fot) + ")." : "");
     o.push('<li><i style="background:' + COL_3D.a + '"></i>' + txt + (v.confirmar ? conf() : "") + "</li>");
-    return '<ul class="vol">' + o.join("") + '</ul><p class="nota">Es una forma posible entre muchas, para dar una idea. No incluye planos límite y supone plantas de ' + PISO + " m. Podés girar el mapa con clic derecho o con dos dedos.</p>";
+    return '<ul class="vol">' + o.join("") + '</ul><p class="nota">Es una forma posible entre muchas, para dar una idea. No considera planos límite y supone una altura de ' + PISO + " m por planta. Podés girar el mapa con clic derecho o con dos dedos.</p>";
   }
   function aplicar3d(camara) {
     var src = map.getSource("vol"); if (!src) return;
@@ -451,18 +451,23 @@
   }
   /* Glosario: términos que aparecen en la ficha, explicados para quien no es del oficio. */
   var GLOSARIO = [
-    ["Zona", "Cada sector de la ciudad tiene reglas propias sobre qué se puede construir y para qué se puede usar. La zona de tu terreno define esas reglas."],
-    ["FOS (factor de ocupación del suelo)", "Qué parte del terreno se puede cubrir con construcción, vista desde arriba. Un FOS de 0,70 en un terreno de 300 m² permite cubrir hasta 210 m²; el resto queda libre (patio, jardín, entrada)."],
-    ["FOT (factor de ocupación total)", "Cuántos metros cuadrados se pueden construir en total, sumando todas las plantas. Un FOT de 1,00 en 300 m² permite 300 m² en total: por ejemplo, 200 m² abajo y 100 m² arriba."],
-    ["Altura máxima", "Hasta dónde puede subir la construcción, medida desde la vereda. Como referencia, cada planta mide unos 3 m."],
-    ["Retiro", "Franja del terreno donde no se puede construir: al frente (contra la vereda), a los costados o al fondo."],
-    ["Línea municipal (L.M.)", "El límite entre el terreno y la vereda."],
-    ["Planos límite", "Planos inclinados imaginarios que la construcción no puede atravesar por encima de cierta altura. Sirven para que lo más alto quede retirado de la calle."],
-    ["Parcela mínima", "La superficie y el frente más chicos que puede tener un terreno nuevo si se divide uno existente."],
-    ["Uso dominante, complementario y condicionado", "Dominante: la actividad principal de la zona. Complementario: se admite junto con la principal. Condicionado: se admite solo si se cumplen ciertas condiciones que evalúa el municipio."],
-    ["Patrón de actividades económicas", "Clasificación de comercios, talleres e industrias según cuánto molestan (ruido, tránsito, olores). Cada zona admite ciertos patrones."],
-    ["Nomenclatura catastral", "El código que identifica cada terreno en Catastro: circunscripción (C), sección (S), manzana (M) y parcela (P)."],
-    ["Número de cuenta", "El número con el que Rentas identifica el inmueble. Figura en la boleta del impuesto inmobiliario."]
+    ["Parcela", "Inmueble de extensión continua, delimitado por una poligonal cerrada y registrado en Catastro. Es lo que habitualmente se llama terreno o lote."],
+    ["Zona", "Sector de la planta urbana delimitado por el Código de Urbanización, con normas propias de ocupación, edificación, subdivisión y uso del suelo. La zona en que está la parcela define qué y cuánto se puede construir y qué actividades se admiten."],
+    ["Línea Municipal (L.M.)", "Límite entre la parcela (dominio privado) y la vía pública (dominio público). Es el borde frontal de la parcela, donde termina la vereda; no debe confundirse con el cordón de la vereda."],
+    ["Líneas divisorias de parcela", "Límites que separan una parcela de las linderas. Las laterales son las que llegan a la L.M.; la de fondo es la opuesta a la L.M."],
+    ["Retiro", "Distancia mínima obligatoria entre la edificación y un límite de la parcela, medida en forma perpendicular a ese límite. Retiro de frente: desde la L.M. Retiro lateral: desde las líneas divisorias laterales. Retiro de fondo: desde la línea divisoria de fondo. La franja que resulta no se puede edificar."],
+    ["Línea de edificación", "Línea desde la cual se puede edificar hacia el interior de la parcela. Coincide con la L.M. cuando no se exige retiro de frente; si se exige, queda desplazada hacia adentro la distancia de ese retiro."],
+    ["F.O.S. (Factor de Ocupación del Suelo)", "Relación entre la superficie máxima que puede ocupar la edificación, vista en planta (proyección horizontal), y la superficie de la parcela. Ejemplo: con un F.O.S. de 0,70, en una parcela de 300 m² la edificación puede ocupar hasta 210 m²; los 90 m² restantes quedan libres (patio, jardín, accesos)."],
+    ["F.O.T. (Factor de Ocupación Total)", "Relación entre la superficie cubierta total edificable, sumando todas las plantas, y la superficie de la parcela. Ejemplo: con un F.O.T. de 1,00, en una parcela de 300 m² se pueden construir hasta 300 m² cubiertos en total, por ejemplo 200 m² en planta baja y 100 m² en planta alta."],
+    ["Altura máxima", "Distancia vertical máxima que puede alcanzar la edificación, medida desde el nivel de la vereda. Como referencia, cada planta tiene unos 3 m de altura de piso a piso."],
+    ["Altura de fachada y planos límite", "La altura de fachada es la altura máxima del frente de la edificación sobre la L.M. Por encima de ella rigen los planos límite: planos imaginarios inclinados que la edificación no puede atravesar, de modo que los pisos superiores se retiran progresivamente de la vía pública."],
+    ["Parcela en esquina", "Parcela con frente sobre dos calles que se cortan. El Código suele fijarle F.O.S., F.O.T. y retiros distintos a los de una parcela entre medianeras."],
+    ["Subdivisión", "División de una parcela en dos o más parcelas nuevas. Requiere aprobación municipal y registración en Catastro."],
+    ["Superficie mínima y frente mínimo de parcela", "Dimensiones mínimas que debe tener cada parcela resultante de una subdivisión. El frente se mide sobre la L.M."],
+    ["Uso dominante, complementario y condicionado", "Dominante: el uso que caracteriza a la zona. Complementario: se admite porque es compatible con el dominante y lo complementa. Condicionado: se admite solo si cumple requisitos adicionales, que el municipio evalúa en cada caso."],
+    ["Patrón de actividades económicas", "Clasificación de las actividades económicas (comercios, servicios, talleres e industrias) según su grado de molestia o impacto sobre el entorno: ruidos, vibraciones, olores, tránsito de carga. Cada sector de la planta urbana admite determinados patrones."],
+    ["Nomenclatura catastral", "Código con el que el Catastro de la Provincia de Córdoba identifica cada parcela. Se compone de departamento, pedanía y localidad, seguidos de circunscripción (C), sección (S), manzana (M) y parcela (P); la ficha muestra estos cuatro últimos."],
+    ["Número de cuenta", "Número con el que la Dirección General de Rentas de la Provincia identifica el inmueble a los fines del Impuesto Inmobiliario. Figura en la boleta del impuesto."]
   ];
   function glosarioHTML() {
     return '<dl class="glosario">' + GLOSARIO.map(function (g) { return "<dt>" + esc(g[0]) + "</dt><dd>" + esc(g[1]) + "</dd>"; }).join("") + "</dl>";
@@ -472,18 +477,18 @@
     var E = edificable(i, z, col.sup[i] || 0), r = E && E.ret;
     if (!r) return null;
     var p = [];
-    if (r.frente > 0) p.push(mt(r.frente) + " al frente");
-    if (E.esquina && r.frente2 > 0) p.push(mt(r.frente2) + " sobre la otra calle");
-    if (r.lateral > 0) p.push(r.lateral_uno ? mt(r.lateral) + " sobre uno de los costados" : mt(r.lateral) + " a cada costado");
-    if (r.fondo > 0) p.push(mt(r.fondo) + " al fondo");
-    return { txt: p.length ? "Hay que dejar " + lista(p) + " sin construir." : "No hace falta dejar retiros: se puede construir sobre la línea de la vereda.", opt: r.opt };
+    if (r.frente > 0) p.push("un retiro de frente de " + mt(r.frente) + ", medido desde la Línea Municipal (L.M.)");
+    if (E.esquina && r.frente2 > 0) p.push("un retiro de frente de " + mt(r.frente2) + " sobre la segunda calle");
+    if (r.lateral > 0) p.push(r.lateral_uno ? "un retiro lateral de " + mt(r.lateral) + " sobre una de las líneas divisorias laterales" : "un retiro lateral de " + mt(r.lateral) + " sobre cada línea divisoria lateral");
+    if (r.fondo > 0) p.push("un retiro de fondo de " + mt(r.fondo));
+    return { txt: p.length ? "Hay que respetar " + lista(p) + (p.length > 1 ? ". Esas franjas no se pueden edificar." : ". Esa franja no se puede edificar.") : "No se exigen retiros: se puede edificar sobre la Línea Municipal (L.M.) y sobre las líneas divisorias de la parcela.", opt: r.opt };
   }
   function usosEnPalabras(z) {
     var si = [], cond = [];
     UF.forEach(function (u, k) {
       var v = valorUso(k, z.zona), e = estadoUso(v), nm = minus(nombreUso(u.uso));
       if (e === "si") si.push(nm);
-      else if (e === "cond") cond.push(nm + (v === "V" ? " (solo vivienda que acompañe a la actividad principal)" : v === "A" ? " (solo como complemento de la actividad principal)" : ""));
+      else if (e === "cond") cond.push(nm + (v === "V" ? " (solo vivienda complementaria de la actividad principal)" : v === "A" ? " (solo como actividad auxiliar de la principal)" : ""));
     });
     return { si: si, cond: cond };
   }
@@ -495,13 +500,13 @@
     if (ind && ind.fos != null && ind.fot != null && S > 0) {
       var plantas = H != null ? Math.max(1, Math.floor(H / PISO + 1e-9)) : null;
       it.push(["¿Cuánto puedo construir?",
-        "Hasta <b>" + m2(S * ind.fot) + "</b> en total, sumando plantas, y cubriendo como máximo <b>" + m2(S * ind.fos) + "</b> del terreno." +
-        (H != null ? " Altura máxima: <b>" + mt(H) + "</b>, unas " + plantas + (plantas === 1 ? " planta" : " plantas") + "." : z.altura ? " Altura: " + esc(minus(z.altura)) + "." : "") +
+        "La edificación puede ocupar hasta <b>" + m2(S * ind.fos) + "</b> de la parcela (F.O.S.) y sumar hasta <b>" + m2(S * ind.fot) + "</b> cubiertos entre todas las plantas (F.O.T.)." +
+        (H != null ? " Altura máxima: <b>" + mt(H) + "</b>, equivalente a unas " + plantas + (plantas === 1 ? " planta" : " plantas") + "." : z.altura ? " Altura: " + esc(minus(z.altura)) + "." : "") +
         (ind.confirmar ? conf() : "")]);
-    } else if (!z.casos || !z.casos.length) it.push(["¿Cuánto puedo construir?", "La ordenanza no fija indicadores para esta zona: hay que consultar en el municipio."]);
+    } else if (!z.casos || !z.casos.length) it.push(["¿Cuánto puedo construir?", "El Código no fija F.O.S. ni F.O.T. para esta zona: corresponde consultar en el municipio."]);
     /* 2. qué dejar libre */
     var rp = retirosEnPalabras(i, z);
-    if (rp) it.push(["¿Qué tengo que dejar libre?", esc(rp.txt) + (ind && ind.fos != null ? " Además, el " + nf(100 - ind.fos * 100) + " % del terreno queda sin cubrir." : "") +
+    if (rp) it.push(["¿Qué tengo que dejar libre?", esc(rp.txt) + (ind && ind.fos != null ? " Además, por el F.O.S., al menos el " + nf(100 - ind.fos * 100) + " % de la parcela debe quedar libre de edificación." : "") +
       (rp.opt ? ' <span class="suave">' + esc(rp.opt) + ".</span>" : "")]);
     /* 3. usos */
     var u = usosEnPalabras(z);
@@ -509,14 +514,15 @@
       (u.si.length ? '<span class="usos-l">' + u.si.map(function (x) { return "<span>" + esc(x.charAt(0).toUpperCase() + x.slice(1)) + "</span>"; }).join("") + "</span>" : "") +
       (u.cond.length ? '<span class="suave">Con condiciones: ' + esc(lista(u.cond)) + ".</span>" : "")]);
     /* 4. dividir */
-    if (/no se admite/i.test(z.fracc)) it.push(["¿Puedo dividir el terreno?", "No. En esta zona no se admite la subdivisión."]);
+    if (/no se admite/i.test(z.fracc)) it.push(["¿Puedo subdividir la parcela?", "No. En esta zona el Código no admite la subdivisión."]);
     else if (z.sup_min && S > 0) {
       var k = Math.floor(S / z.sup_min + 1e-9);
-      it.push(["¿Puedo dividir el terreno?", (k >= 2 ? "Por superficie, sí: en hasta <b>" + k + "</b> terrenos" : "No: cada terreno nuevo") +
-        " " + (k >= 2 ? "de" : "tiene que tener") + " al menos " + m2(z.sup_min) + (z.frente_min ? " y " + mt(z.frente_min) + " de frente" : "") + "."]);
+      var dimMin = m2(z.sup_min) + " de superficie" + (z.frente_min ? " y " + mt(z.frente_min) + " de frente" : "");
+      it.push(["¿Puedo subdividir la parcela?", k >= 2 ? "Por superficie, sí: en hasta <b>" + k + "</b> parcelas de al menos " + m2(z.sup_min) + " cada una" + (z.frente_min ? ", siempre que todas tengan además un frente mínimo de " + mt(z.frente_min) : "") + "."
+        : "No: cada parcela resultante debe tener al menos " + dimMin + ", y la superficie no alcanza para dos."]);
     }
-    var h = '<div class="resumen"><p class="res-cab">En pocas palabras' + (S > 0 ? ", para este terreno de " + m2(S) : "") + "</p>";
-    if (enPantalla && hayEsquina(z)) h += '<label class="sw"><input type="checkbox" id="esq"' + (esq ? " checked" : "") + '><span></span>Terreno en esquina' +
+    var h = '<div class="resumen"><p class="res-cab">En pocas palabras' + (S > 0 ? ", para esta parcela de " + m2(S) : "") + "</p>";
+    if (enPantalla && hayEsquina(z)) h += '<label class="sw"><input type="checkbox" id="esq"' + (esq ? " checked" : "") + '><span></span>Parcela en esquina' +
       (esqAuto ? "<small>Lo detectamos con el plano catastral. Si no es así, cambialo.</small>" : "") + "</label>";
     h += it.map(function (x) { return '<div class="res-it"><h4>' + x[0] + "</h4><p>" + x[1] + "</p></div>"; }).join("");
     return h + "</div>";
@@ -541,10 +547,10 @@
     var d = "";
     if (z && z.zona) {
       var ind = indDe(i, supCalc);
-      d += desp("ind", "Indicadores urbanísticos", parteInd(i, true), "FOS, FOT, altura y parcela mínima");
+      d += desp("ind", "Indicadores urbanísticos", parteInd(i, true), "F.O.S., F.O.T., altura máxima y parcela mínima");
       if (ind && (ind.fos != null || ind.fot != null)) d += desp("calc", "Calcular con otra superficie",
-        '<p class="nota">Sirve para simular, por ejemplo, la medida de una mensura o la de dos terrenos unidos. El cálculo no descuenta retiros.</p>' +
-        '<div class="calc-in"><label for="calc-sup">Superficie del terreno</label><span class="unid"><input type="number" id="calc-sup" min="0" step="0.1" value="' + (supCalc || "") + '"><i>m²</i></span>' +
+        '<p class="nota">Sirve para simular, por ejemplo, la superficie según mensura o la de dos parcelas unificadas. El cálculo no descuenta retiros.</p>' +
+        '<div class="calc-in"><label for="calc-sup">Superficie de la parcela</label><span class="unid"><input type="number" id="calc-sup" min="0" step="0.1" value="' + (supCalc || "") + '"><i>m²</i></span>' +
         '<button class="btn chico" data-acc="sup">Volver a la de Catastro</button></div><div id="calc-out">' + calcHTML(i, supCalc) + "</div>", "Cuánto se podría construir con otra medida");
       if (z.uso_dom || z.uso_comp || z.uso_cond) d += desp("usos", "Usos según la ordenanza", '<div class="usos-txt">' + usosTexto(z) + "</div>" +
         (z.patron ? '<p class="nota">Los comercios, talleres e industrias se regulan por el patrón ' + esc(z.patron) + " de la tabla de patrones del Código.</p>" : "") +
@@ -553,7 +559,7 @@
       var largo2 = function (t) { return t && num(t) == null; };
       var tx = function (t, x) { return x ? "<h4>" + t + "</h4><p>" + esc(x).replace(/\n+/g, "<br>") + "</p>" : ""; };
       var ord = tx("Retiros", z.retiros) + tx("Subdivisión", z.fracc) + (largo2(z.sup_min_txt) ? tx("Superficie mínima de parcela", z.sup_min_txt) : "") +
-        (largo2(z.frente_min_txt) ? tx("Frente mínimo de parcela", z.frente_min_txt) : "") + tx("Estacionamiento", z.estac) + tx("FOS", z.fos_txt) + tx("FOT", z.fot_txt) + tx("Alturas", z.altura_txt) +
+        (largo2(z.frente_min_txt) ? tx("Frente mínimo de parcela", z.frente_min_txt) : "") + tx("Estacionamiento", z.estac) + tx("F.O.S.", z.fos_txt) + tx("F.O.T.", z.fot_txt) + tx("Alturas", z.altura_txt) +
         (z.extra ? tx("Otros casos", z.extra) : "") +
         (z.art ? '<p class="nota">' + (/^\d+$/.test(z.art) ? "Art. " + esc(z.art) + " del " : "") + "Código de Urbanización (Ord. 1067/2015).</p>" : "");
       d += desp("ord", "Texto de la ordenanza", ord ? '<div class="txt-ord">' + ord + "</div>" : "", "Para profesionales: la redacción original");
@@ -562,7 +568,7 @@
       (col.des[i] ? "<dt>Designación oficial</dt><dd>" + esc(col.des[i]) + "</dd>" : "") +
       "<dt>Superficie</dt><dd>" + (col.sup[i] != null ? m2(col.sup[i]) + " según Catastro" : "Sin dato") + "</dd></dl>", "Nomenclatura, cuenta y designación");
     d += desp("qr", "Código QR", '<div class="qr"><img alt="Código QR de la parcela" src="' + qrDe(url) + '"><span>' + esc(url) + "</span></div>", "Para abrir esta ficha desde el celular");
-    d += desp("glos", "¿Qué significa cada término?", glosarioHTML(), "FOS, FOT, retiro, planos límite y más");
+    d += desp("glos", "¿Qué significa cada término?", glosarioHTML(), "F.O.S., F.O.T., L.M., retiros, planos límite y más");
     F.innerHTML = h + '<div class="desps">' + d + "</div>";
   }
   $("#ficha").addEventListener("toggle", function (e) { var t = e.target; if (t.dataset && t.dataset.d) abiertos[t.dataset.d] = t.open; }, true);
@@ -845,7 +851,7 @@
       '<li><span><b>Leé el resumen</b>: está escrito para que lo entienda cualquier vecino.</span></li>' +
       '<li><span><b>Abrí los desplegables</b> si necesitás el detalle técnico o el texto de la ordenanza.</span></li></ol>' +
       (C.ejemplo ? '<button class="btn" data-acc="ejemplo">Ver un terreno de ejemplo</button>' : "") +
-      desp("glos0", "¿Qué significa cada término?", glosarioHTML(), "FOS, FOT, retiro, planos límite y más") + "</div>";
+      desp("glos0", "¿Qué significa cada término?", glosarioHTML(), "F.O.S., F.O.T., L.M., retiros, planos límite y más") + "</div>";
   }
   $("#ficha").innerHTML = inicioHTML();
 
