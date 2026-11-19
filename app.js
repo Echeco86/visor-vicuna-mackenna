@@ -532,10 +532,11 @@
     var F = $("#ficha");
     if (sel < 0) return;
     var i = sel, z = zonaDe(i), url = urlDe(i), v = z && z.zona ? volumen(i) : null;
-    var h = cabHTML(i) + parteAvisos(i) + resumenHTML(i, true);
+    var h = '<button class="btn-imp" data-acc="imprimir" title="Imprimir la ficha de esta parcela"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Imprimir ficha</button>' +
+      cabHTML(i) + parteAvisos(i) + resumenHTML(i, true);
     /* acciones */
     h += '<div class="acciones">' + (v ? '<button class="btn' + (ver3d ? " on" : "") + '" data-acc="3d">' + (ver3d ? "Salir de 3D" : "Ver en 3D") + "</button>" : "") +
-      '<button class="btn" data-acc="copiar">Copiar enlace</button><button class="btn" data-acc="imprimir">Imprimir</button><span class="nota" id="msg-copia"></span></div>';
+      '<button class="btn" data-acc="copiar">Copiar enlace</button><span class="nota" id="msg-copia"></span></div>';
     if (ver3d && v) h += '<div class="vol-caja"><p class="res-cab">Qué estás viendo en 3D</p><div id="vol-txt">' + volTexto(i) + "</div></div>";
     /* desplegables */
     var d = "";
@@ -577,7 +578,7 @@
     if (e.target.id === "esq") { esq = e.target.checked; var pos = $("#panel").scrollTop; renderFicha(); $("#panel").scrollTop = pos; aplicar3d(false); }
   });
   $("#ficha").addEventListener("click", function (e) {
-    var a = e.target.dataset && e.target.dataset.acc;
+    var b = e.target.closest ? e.target.closest("[data-acc]") : e.target, a = b && b.dataset && b.dataset.acc;
     if (a === "sup") {
       supCalc = col.sup[sel]; $("#calc-sup").value = supCalc; $("#calc-out").innerHTML = calcHTML(sel, supCalc);
       if (ver3d && $("#vol-txt")) $("#vol-txt").innerHTML = volTexto(sel);
