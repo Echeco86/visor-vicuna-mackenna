@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta urbanística · Vicuña Mackenna</title>
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<header class="barra">
+  <div class="marca"><strong id="titulo">Consulta urbanística</strong><span id="subtitulo"></span></div>
+  <span class="estado" id="estado"></span>
+</header>
+
+<main>
+  <section id="panel" aria-label="Consulta">
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="parcela" aria-selected="true">Terreno</button>
+      <button role="tab" data-tab="usos" aria-selected="false">Actividades</button>
+      <button role="tab" data-tab="capas" aria-selected="false">Mapa</button>
+    </nav>
+
+    <div class="tab" id="t-parcela">
+      <form id="f-partida" class="buscar" autocomplete="off">
+        <label for="q">Buscá un terreno</label>
+        <div class="fila">
+          <input id="q" inputmode="numeric" placeholder="Número de cuenta o nomenclatura">
+          <button type="submit" class="pri">Buscar</button>
+        </div>
+        <p class="nota">El número de cuenta está en la boleta del impuesto inmobiliario. También podés tocar el terreno en el mapa.</p>
+      </form>
+      <details id="d-nom" class="desp">
+        <summary><span>Buscar por manzana y lote</span><small>Con la nomenclatura o la designación de la escritura</small></summary>
+        <form id="f-nom" class="nom" autocomplete="off">
+          <label>Circ.<select id="n-circ"><option value="">—</option></select></label>
+          <label>Sección<select id="n-secc"><option value="">—</option></select></label>
+          <label>Manzana<input id="n-mza" inputmode="numeric"></label>
+          <label>Parcela<input id="n-pcl" inputmode="numeric"></label>
+          <label class="ancho">Designación oficial (ej.: MZ.89 A LT.8)<input id="n-des"></label>
+          <button type="submit" class="btn">Buscar</button>
+        </form>
+      </details>
+      <div id="resultados" aria-live="polite"></div>
+      <div id="ficha"></div>
+    </div>
+
+    <div class="tab" id="t-usos" hidden>
+      <div class="intro"><h2>¿Dónde se puede…?</h2>
+      <p>Elegí una actividad y el mapa pinta las zonas donde el Código la admite, donde la admite con condiciones y donde no la menciona.</p></div>
+      <div id="u-activo"></div>
+      <ul id="u-lista" class="lista"></ul>
+      <details class="desp"><summary><span>¿De dónde sale este cuadro?</span></summary><div class="desp-c"><p class="nota" id="u-fuente"></p></div></details>
+    </div>
+
+    <div class="tab" id="t-capas" hidden>
+      <div class="segm" id="c-fondo" role="radiogroup" aria-label="Mapa de fondo">
+        <label><input type="radio" name="fondo" value="osm" checked><span>Calles</span></label>
+        <label><input type="radio" name="fondo" value="sat"><span>Satelital</span></label>
+        <label><input type="radio" name="fondo" value=""><span>Sin fondo</span></label>
+      </div>
+      <label class="rango">Transparencia de las zonas <input type="range" id="c-opac" min="0" max="100" value="60"></label>
+      <details class="desp" open><summary><span>Zonas del Código</span><small>Qué significa cada color</small></summary><div class="desp-c" id="c-leyenda"></div></details>
+      <details class="desp"><summary><span>Patrones de actividades económicas</span><small>Qué comercios, talleres e industrias admite cada sector</small></summary>
+        <div class="desp-c"><p class="nota">Los patrones clasifican las actividades económicas según cuánto molestan. Prendé uno para ver dónde rige.</p><div class="opciones" id="c-afect"></div></div></details>
+    </div>
+
+    <footer class="pie">
+      <p id="aviso"></p>
+      <p id="version"></p>
+    </footer>
+  </section>
+
+  <div id="mapa-caja">
+    <div id="mapa"></div>
+    <div id="modo-uso" hidden></div>
+    <div id="cargando">Cargando parcelas…</div>
+  </div>
+</main>
+
+<div id="impresion"></div>
+
+<script src="vendor/maplibre-gl.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="config.js"></script>
+<script src="datos/normativa.js"></script>
+<script src="datos/afectaciones.js"></script>
+<script src="datos/parcelas.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
